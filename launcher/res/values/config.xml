@@ -5,12 +5,13 @@
 -->
 <resources>
     <!-- Dock apps, left to right. Apps that aren't installed are skipped. -->
-    <string-array name="dock_apps">
-        <item>com.apple.atve.androidtv.appletv</item>
-        <item>com.google.android.youtube.tv</item>
-        <item>in.startv.hotstar</item>
-        <item>com.netflix.ninja</item>
+        <string-array name="dock_apps">
+        <item>ar.tvplayer.tv</item>
+        <item>com.plexapp.android</item>
         <item>com.amazon.amazonvideo.livingroom</item>
+        <item>com.google.android.youtube.tv</item>
+        <item>com.kick.mobile</item>
+        <item>tv.twitch.android.app</item>
     </string-array>
 
     <!-- Never shown as tiles: system helpers, and the Live TV app (it's in the Inputs menu). -->
