@@ -94,6 +94,7 @@ public class MainActivity extends Activity {
     private final Runnable rotateWallpaper = this::nextWallpaper;
     static final long WALLPAPER_INTERVAL_MS = 10 * 60 * 1000;
     private TextView greeting, clock, ampm, date, title, wifiPill, appsLabel;
+    private WeatherStrip weatherStrip;
     private int glowColor = 0xFF3A3A3A;
     private ValueAnimator glowAnim;
     private int lastFocusedId = View.NO_ID;
@@ -257,7 +258,7 @@ public class MainActivity extends Activity {
         bottom.addView(dockRow, new LinearLayout.LayoutParams(-1, -2));
 
         appsLabel = text(11, "sans-serif-medium", 0x99FFFFFF);
-        appsLabel.setText("ALL APPS");
+        appsLabel.setText("TODAS LAS APPS");
         appsLabel.setLetterSpacing(0.22f);
         content.addView(appsLabel, llp(-2, -2, dp(68), dp(8), 0, dp(18)));
 
@@ -295,6 +296,8 @@ public class MainActivity extends Activity {
         date.setPadding(0, 0, dp(16), 0); // letterSpacing is not counted in the measured width
         date.setLetterSpacing(0.22f);
         left.addView(date);
+        weatherStrip = new WeatherStrip(this);
+        left.addView(weatherStrip, llp(-2, -2, 0, dp(10), 0, 0));
         for (TextView t : new TextView[]{greeting, clock, ampm, date}) t.setShadowLayer(dp(10), 0, dp(1), 0xB3000000);
         header.addView(left, new FrameLayout.LayoutParams(dp(420), -2, Gravity.START | Gravity.TOP));
 
@@ -612,6 +615,7 @@ public class MainActivity extends Activity {
     // ---------------------------------------------------------------- status
 
     private void updateClock() {
+        if (weatherStrip != null) weatherStrip.refresh();
         Calendar now = Calendar.getInstance();
         int h = now.get(Calendar.HOUR_OF_DAY);
         greeting.setText(h < 6 ? "BUENAS NOCHES" : h < 12 ? "BUENOS D\u00cdAS" : h < 21 ? "BUENAS TARDES" : "BUENAS NOCHES");
