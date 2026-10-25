@@ -124,7 +124,6 @@ public class WeatherStrip extends LinearLayout {
         }
     }
 
-EOFcat >> WeatherStrip.java <<'EOF'
     private static class IconView extends View {
         private final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         private int kind = 2;
@@ -169,7 +168,6 @@ EOFcat >> WeatherStrip.java <<'EOF'
             }
         }
 
-EOFcat >> WeatherStrip.java <<'EOF'
         private void sun(Canvas c, float x, float y, float r) {
             p.setStyle(Paint.Style.FILL);
             p.setColor(0xFFF6C453);
