@@ -301,11 +301,11 @@ public class MainActivity extends Activity {
         LinearLayout right = new LinearLayout(this);
         right.setGravity(Gravity.CENTER_VERTICAL);
         right.setClipChildren(false);
-        TextView inputs = pill("Inputs", "⇥");
+        TextView inputs = pill("Entradas", "⇥");
         inputs.setOnClickListener(v -> showInputs(v));
         wifiPill = pill("Wi-Fi", "◉");
         wifiPill.setOnClickListener(v -> launch(new Intent(Settings.ACTION_WIFI_SETTINGS)));
-        TextView settings = pill("Settings", "⚙");
+        TextView settings = pill("Ajustes", "⚙");
         settings.setOnClickListener(v -> launch(new Intent(Settings.ACTION_SETTINGS)));
         for (TextView p : new TextView[]{inputs, wifiPill, settings}) {
             right.addView(p, llp(-2, dp(30), dp(10), 0, 0, 0));
@@ -564,7 +564,7 @@ public class MainActivity extends Activity {
         if (isInstalled(liveTvPkg)) rows.add(inputRow("Live TV", () -> openPackage(liveTvPkg)));
         if (inputs.isEmpty() && isInstalled(inputPickerPkg)) rows.add(inputRow("All sources…", () -> openPackage(inputPickerPkg)));
 
-        if (rows.isEmpty()) rows.add(inputRow("Settings", () -> launch(new Intent(Settings.ACTION_SETTINGS))));
+        if (rows.isEmpty()) rows.add(inputRow("Ajustes", () -> launch(new Intent(Settings.ACTION_SETTINGS))));
         for (TextView r : rows) {
             r.setOnClickListener(v -> { pw.dismiss(); ((Runnable) v.getTag()).run(); });
             list.addView(r, new LinearLayout.LayoutParams(-1, dp(36)));
@@ -614,11 +614,11 @@ public class MainActivity extends Activity {
     private void updateClock() {
         Calendar now = Calendar.getInstance();
         int h = now.get(Calendar.HOUR_OF_DAY);
-        greeting.setText(h < 5 ? "GOOD NIGHT" : h < 12 ? "GOOD MORNING" : h < 17 ? "GOOD AFTERNOON" : "GOOD EVENING");
+        greeting.setText(h < 6 ? "BUENAS NOCHES" : h < 12 ? "BUENOS D\u00cdAS" : h < 21 ? "BUENAS TARDES" : "BUENAS NOCHES");
         boolean is24 = android.text.format.DateFormat.is24HourFormat(this);
         clock.setText(new SimpleDateFormat(is24 ? "H:mm" : "h:mm", Locale.getDefault()).format(now.getTime()));
         ampm.setText(is24 ? "" : (h < 12 ? "AM" : "PM"));
-        date.setText(new SimpleDateFormat("EEEE  d MMMM", Locale.getDefault()).format(now.getTime()).toUpperCase(Locale.getDefault()));
+        date.setText(new SimpleDateFormat("EEEE  d MMMM", new Locale("es", "ES")).format(now.getTime()).toUpperCase(new Locale("es", "ES")));
     }
 
     private void updateWifi() {
