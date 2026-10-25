@@ -12,11 +12,12 @@
         <item>com.google.android.youtube.tv</item>
         <item>com.kick.mobile</item>
         <item>tv.twitch.android.app</item>
+                  <item>com.tcl.tv</item>
     </string-array>
 
     <!-- Never shown as tiles: system helpers, and the Live TV app (it's in the Inputs menu). -->
     <string-array name="hidden_apps">
-        <item>com.tcl.tv</item>
+
         <item>com.tcl.suspension</item>
         <item>com.tcl.t_solo</item>
         <item>com.tcl.dashboard</item>
