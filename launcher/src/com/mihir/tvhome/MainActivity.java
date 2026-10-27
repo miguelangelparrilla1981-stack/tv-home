@@ -94,6 +94,7 @@ public class MainActivity extends Activity {
     private final Runnable rotateWallpaper = this::nextWallpaper;
     static final long WALLPAPER_INTERVAL_MS = 10 * 60 * 1000;
     private TextView greeting, clock, ampm, date, title, wifiPill, appsLabel;
+    private GlassBar bar;
     private WeatherStrip weatherStrip;
     private int glowColor = 0xFF3A3A3A;
     private ValueAnimator glowAnim;
@@ -238,11 +239,16 @@ public class MainActivity extends Activity {
         bottom.setClipToPadding(false);
         hero.addView(bottom, lp(-1, -2, Gravity.BOTTOM, dp(48), 0, dp(48), dp(30)));
 
-        title = text(34, "sans-serif-light", Color.WHITE);
-        title.setShadowLayer(dp(18), 0, 0, 0x66000000);
+        title = text(13, "sans-serif-medium", Color.WHITE);
         title.setSingleLine(true);
-        bottom.addView(title, new LinearLayout.LayoutParams(-2, -2));
-        ((LinearLayout.LayoutParams) title.getLayoutParams()).setMargins(dp(8), 0, 0, dp(14));
+        title.setPadding(dp(14), dp(6), dp(14), dp(6));
+        GradientDrawable tipBg = new GradientDrawable();
+        tipBg.setCornerRadius(dp(16));
+        tipBg.setColor(0x80000000);
+        tipBg.setStroke(dp(1), 0x4DFFFFFF);
+        title.setBackground(tipBg);
+        title.setAlpha(0f);
+        hero.addView(title, new FrameLayout.LayoutParams(-2, -2, Gravity.TOP | Gravity.START));
 
         dockRow = new LinearLayout(this);
         dockRow.setOrientation(LinearLayout.HORIZONTAL);
@@ -276,44 +282,64 @@ public class MainActivity extends Activity {
 
         LinearLayout left = new LinearLayout(this);
         left.setOrientation(LinearLayout.VERTICAL);
-        greeting = text(10, "sans-serif-medium", 0xB3FFFFFF);
-        greeting.setLetterSpacing(0.25f);
+        greeting = text(17, "sans-serif-medium", 0xE6FFFFFF);
         greeting.setSingleLine(true);
-        greeting.setPadding(0, 0, dp(16), 0);
         left.addView(greeting);
 
         LinearLayout clockRow = new LinearLayout(this);
         clockRow.setGravity(Gravity.BOTTOM);
-        clock = text(54, "sans-serif-thin", Color.WHITE);
+        clock = text(78, "sans-serif-thin", Color.WHITE);
         clock.setIncludeFontPadding(false);
         clockRow.addView(clock);
-        ampm = text(12, "sans-serif-light", 0xCCFFFFFF);
-        clockRow.addView(ampm, llp(-2, -2, dp(6), 0, 0, dp(8)));
-        left.addView(clockRow, llp(-2, -2, 0, dp(2), 0, dp(2)));
+        ampm = text(17, "sans-serif-light", 0xCCFFFFFF);
+        clockRow.addView(ampm, llp(-2, -2, dp(8), 0, 0, dp(12)));
+        left.addView(clockRow, llp(-2, -2, 0, dp(4), 0, dp(4)));
 
-        date = text(10, "sans-serif-medium", 0x99FFFFFF);
+        date = text(17, "sans-serif-medium", 0xCCFFFFFF);
         date.setSingleLine(true);
-        date.setPadding(0, 0, dp(16), 0); // letterSpacing is not counted in the measured width
-        date.setLetterSpacing(0.22f);
         left.addView(date);
-        weatherStrip = new WeatherStrip(this);
-        left.addView(weatherStrip, llp(-2, -2, 0, dp(10), 0, 0));
         for (TextView t : new TextView[]{greeting, clock, ampm, date}) t.setShadowLayer(dp(10), 0, dp(1), 0xB3000000);
-        header.addView(left, new FrameLayout.LayoutParams(dp(420), -2, Gravity.START | Gravity.TOP));
+        header.addView(left, new FrameLayout.LayoutParams(-2, -2, Gravity.START | Gravity.TOP));
 
         LinearLayout right = new LinearLayout(this);
-        right.setGravity(Gravity.CENTER_VERTICAL);
+        right.setOrientation(LinearLayout.VERTICAL);
+        right.setGravity(Gravity.END);
         right.setClipChildren(false);
-        TextView inputs = pill("Entradas", "⇥");
-        inputs.setOnClickListener(v -> showInputs(v));
-        wifiPill = pill("Wi-Fi", "◉");
-        wifiPill.setOnClickListener(v -> launch(new Intent(Settings.ACTION_WIFI_SETTINGS)));
-        TextView settings = pill("Ajustes", "⚙");
-        settings.setOnClickListener(v -> launch(new Intent(Settings.ACTION_SETTINGS)));
-        for (TextView p : new TextView[]{inputs, wifiPill, settings}) {
-            right.addView(p, llp(-2, dp(30), dp(10), 0, 0, 0));
-            pills.add(p);
-        }
+
+        final TextView tip = text(13, "sans-serif-medium", Color.WHITE);
+        tip.setSingleLine(true);
+        tip.setPadding(dp(14), dp(5), dp(14), dp(5));
+        GradientDrawable barTipBg = new GradientDrawable();
+        barTipBg.setCornerRadius(dp(15));
+        barTipBg.setColor(0x73000000);
+        barTipBg.setStroke(dp(1), 0x4DFFFFFF);
+        tip.setBackground(barTipBg);
+        tip.setText("Buscar");
+        tip.setAlpha(0f);
+
+        bar = new GlassBar(this);
+        bar.onFocus = (v, has) -> {
+            if (has) {
+                lastFocusedId = v.getId();
+                scroll.smoothScrollTo(0, 0);
+                fadeGlow(1f);
+                title.animate().alpha(0f).setDuration(150).start();
+                tip.setText(String.valueOf(v.getTag()));
+            }
+            tip.animate().alpha(has ? 1f : 0f).setDuration(150).start();
+        };
+        bar.search.setOnClickListener(v -> {
+            if (!launch(new Intent("android.search.action.GLOBAL_SEARCH"))) openPackage("com.google.android.katniss");
+        });
+        bar.inputs.setOnClickListener(v -> showInputs(v));
+        bar.wifi.setOnClickListener(v -> launch(new Intent(Settings.ACTION_WIFI_SETTINGS)));
+        bar.settings.setOnClickListener(v -> launch(new Intent(Settings.ACTION_SETTINGS)));
+        pills.addAll(bar.buttons);
+        right.addView(bar, new LinearLayout.LayoutParams(-2, -2));
+        right.addView(tip, llp(-2, -2, 0, dp(8), 0, 0));
+
+        weatherStrip = new WeatherStrip(this);
+        right.addView(weatherStrip, llp(dp(300), -2, 0, dp(10), 0, 0));
         header.addView(right, new FrameLayout.LayoutParams(-2, -2, Gravity.END | Gravity.TOP));
         return header;
     }
@@ -408,12 +434,26 @@ public class MainActivity extends Activity {
         else if (!dockCards.isEmpty()) dockCards.get(0).requestFocus();
     }
 
-    /** A 16:9 card with the app's banner; the name shows under it while focused. */
+    /** A 16:9 card with the app's banner; focused: zoom, coloured halo and its name floats above the dock. */
     private View tile(App app, boolean inDock) {
         LinearLayout box = new LinearLayout(this);
         box.setOrientation(LinearLayout.VERTICAL);
         box.setClipChildren(false);
         box.setClipToPadding(false);
+
+        FrameLayout wrap = new FrameLayout(this);
+        wrap.setClipChildren(false);
+        wrap.setClipToPadding(false);
+
+        View halo = new View(this);
+        GradientDrawable haloBg = new GradientDrawable();
+        haloBg.setCornerRadius(dp(24));
+        haloBg.setColor(withAlpha(app.color, 0.45f));
+        halo.setBackground(haloBg);
+        halo.setAlpha(0f);
+        FrameLayout.LayoutParams hp = new FrameLayout.LayoutParams(-1, -1);
+        hp.setMargins(-dp(12), -dp(12), -dp(12), -dp(12));
+        wrap.addView(halo, hp);
 
         FrameLayout card = new AspectFrame(this);
         card.setId(View.generateViewId());
@@ -452,7 +492,8 @@ public class MainActivity extends Activity {
         shine.setAlpha(0f);
         card.addView(shine, new FrameLayout.LayoutParams(-1, -1));
 
-        box.addView(card, new LinearLayout.LayoutParams(-1, -2));
+        wrap.addView(card, new FrameLayout.LayoutParams(-1, -2));
+        box.addView(wrap, new LinearLayout.LayoutParams(-1, -2));
 
         TextView label = text(11, "sans-serif-medium", Color.WHITE);
         label.setText(app.label);
@@ -470,6 +511,8 @@ public class MainActivity extends Activity {
             v.animate().scaleX(s).scaleY(s).translationZ(has ? dp(14) : 0)
                     .setInterpolator(has ? new OvershootInterpolator(1.8f) : new DecelerateInterpolator())
                     .setDuration(has ? 320 : 200).start();
+            halo.animate().alpha(has && inDock ? 1f : 0f).scaleX(s).scaleY(s)
+                    .setDuration(has ? 320 : 200).start();
             shine.animate().alpha(has ? 1f : 0f).setDuration(160).start();
             label.animate().alpha(has ? 1f : 0f).translationY(has ? dp(4) : 0).setDuration(200).start();
             if (!has) return;
@@ -477,6 +520,7 @@ public class MainActivity extends Activity {
             if (inDock) {
                 title.setText(app.label);
                 title.animate().alpha(1f).setDuration(200).start();
+                v.post(() -> placeTip(v));
                 animateGlow(app.color);
                 fadeGlow(1f);
                 scroll.smoothScrollTo(0, 0);
@@ -489,6 +533,21 @@ public class MainActivity extends Activity {
 
         (inDock ? dockCards : gridCards).add(card);
         return box;
+    }
+
+    /** Centre the floating name above the focused dock card. */
+    private void placeTip(View card) {
+        title.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        int tw = title.getMeasuredWidth();
+        int th = title.getMeasuredHeight();
+        int[] c = new int[2];
+        int[] h = new int[2];
+        card.getLocationOnScreen(c);
+        hero.getLocationOnScreen(h);
+        float cx = c[0] - h[0] + card.getWidth() / 2f;
+        float top = c[1] - h[1];
+        title.setTranslationX(Math.max(dp(8), cx - tw / 2f));
+        title.setTranslationY(top - th - dp(30) - card.getHeight() * 0.06f);
     }
 
     /** Explicit D-pad targets: one row per press, ends of rows and of the top bar don't wrap. */
@@ -618,11 +677,13 @@ public class MainActivity extends Activity {
         if (weatherStrip != null) weatherStrip.refresh();
         Calendar now = Calendar.getInstance();
         int h = now.get(Calendar.HOUR_OF_DAY);
-        greeting.setText(h < 6 ? "BUENAS NOCHES" : h < 12 ? "BUENOS D\u00cdAS" : h < 21 ? "BUENAS TARDES" : "BUENAS NOCHES");
+        greeting.setText(h < 6 ? "Buenas noches" : h < 12 ? "Buenos d\u00edas" : h < 21 ? "Buenas tardes" : "Buenas noches");
         boolean is24 = android.text.format.DateFormat.is24HourFormat(this);
         clock.setText(new SimpleDateFormat(is24 ? "H:mm" : "h:mm", Locale.getDefault()).format(now.getTime()));
-        ampm.setText(is24 ? "" : (h < 12 ? "AM" : "PM"));
-        date.setText(new SimpleDateFormat("EEEE  d MMMM", new Locale("es", "ES")).format(now.getTime()).toUpperCase(new Locale("es", "ES")));
+        ampm.setText(is24 ? "" : (h < 12 ? "am" : "pm"));
+        Locale es = new Locale("es", "ES");
+        String d = new SimpleDateFormat("EEEE, d 'de' MMMM", es).format(now.getTime());
+        date.setText(d.substring(0, 1).toUpperCase(es) + d.substring(1));
     }
 
     private void updateWifi() {
@@ -635,7 +696,7 @@ public class MainActivity extends Activity {
                 if (wm.getConnectionInfo().getNetworkId() == -1) name = "Offline";
             }
         } catch (SecurityException ignored) { }
-        wifiPill.setText("◉  " + name);
+        if (bar != null) bar.setWifiName(name);
     }
 
     // ---------------------------------------------------------------- glow
@@ -798,7 +859,7 @@ public class MainActivity extends Activity {
     private TextView text(float sp, String family, int color) {
         TextView t = new TextView(this);
         t.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp);
-        t.setTypeface(Typeface.create(family, Typeface.NORMAL));
+        t.setTypeface(Fonts.get(this, family));
         t.setTextColor(color);
         return t;
     }
@@ -831,7 +892,7 @@ public class MainActivity extends Activity {
     public boolean dispatchKeyEvent(KeyEvent e) {
         // Menu key on the remote opens the Inputs dropdown.
         if (e.getKeyCode() == KeyEvent.KEYCODE_MENU && e.getAction() == KeyEvent.ACTION_UP && !pills.isEmpty()) {
-            showInputs(pills.get(0));
+            showInputs(pills.get(1));
             return true;
         }
         return super.dispatchKeyEvent(e);
