@@ -11,6 +11,11 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+      - name: Download Outfit font
+        run: |
+          mkdir -p launcher/assets/fonts
+          curl -fL -o launcher/assets/fonts/Outfit.ttf "https://github.com/google/fonts/raw/main/ofl/outfit/Outfit%5Bwght%5D.ttf" || curl -fL -o launcher/assets/fonts/Outfit.ttf "https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/outfit/Outfit%5Bwght%5D.ttf"
+          ls -la launcher/assets/fonts
       - name: Install SDK pieces
         run: |
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
