@@ -451,7 +451,7 @@ public class MainActivity extends Activity {
         haloBg.setColor(withAlpha(app.color, 0.45f));
         halo.setBackground(haloBg);
         halo.setAlpha(0f);
-        FrameLayout.LayoutParams hp = new FrameLayout.LayoutParams(-1, -1);
+        FrameLayout.LayoutParams hp = new FrameLayout.LayoutParams(1, 1);
         hp.setMargins(-dp(12), -dp(12), -dp(12), -dp(12));
         wrap.addView(halo, hp);
 
@@ -493,6 +493,7 @@ public class MainActivity extends Activity {
         card.addView(shine, new FrameLayout.LayoutParams(-1, -1));
 
         wrap.addView(card, new FrameLayout.LayoutParams(-1, -2));
+        card.addOnLayoutChangeListener((v2, l, t, r, b, ol, ot, orr, ob) -> { int w2 = r - l + dp(24); int h2 = b - t + dp(24); ViewGroup.LayoutParams lp2 = halo.getLayoutParams(); if (lp2.width != w2 || lp2.height != h2) { lp2.width = w2; lp2.height = h2; halo.setLayoutParams(lp2); } });
         box.addView(wrap, new LinearLayout.LayoutParams(-1, -2));
 
         TextView label = text(11, "sans-serif-medium", Color.WHITE);
